@@ -29,6 +29,44 @@
                 font-size: 1.2em;
                 color:grey;
             }
+
+			.displayTransformedArab{
+				margin: 16px 0px;
+				display: flex;
+				flex-direction: row-reverse;
+				border-radius: 4px;
+				padding: 8px 16px;
+			}
+
+			.displayTransformedArab .arab{
+				font-size: 72px;
+			}
+
+			.displayTransformedArab .penanda{
+				border-top: 2px solid;
+				text-align: center;
+				font-size: 28px;
+			}
+
+			.displayTransformedArab .transformedArabItem{
+				margin: 0px 16px; 
+			}
+
+			.tanda {
+				color: #198754; /* green */
+			}
+			.marfu {
+				color: #dc3545; /* red */
+			}
+			.majrur {
+				color: #0d6efd; /* blue */
+			}
+			.masub {
+				color: #ffc107; /* yellow */
+			}
+			.majsum {
+				color: #6610f2; /* indigo */
+			}
         </style>
     </head>
     <body>

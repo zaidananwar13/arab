@@ -15,48 +15,96 @@ class Kamus extends CI_Controller
         
         $this->load->library('datatables');
     }
+
     public function prediksi() 
     {
         $data = array(
             'action' => site_url('kamus/prediksi_action')
-            );
+        );
         $this->load->view('kamus/prediksi_form', $data);
     }
+
     public function prediksi_action(){
-        $kalimat=$_POST['kata'];
-        $kata=explode(" ", $kalimat);
-        //print_r(explode(" ", $kalimat));
+        $kalimat = $_POST['kata'];
+        $tempKata = explode(" ", $kalimat);
+        $kata = [];
+
+        $tempKata = \array_filter($tempKata, static function ($element){
+            return $element != "";
+        });
+
+        $index = 0;
+        foreach($tempKata as $item){
+            $kata[$index] = $item;
+            $index++;
+        }
+
+        print_r($kata);
+
+        print_r(explode(" ", $kalimat));
+        print_r($kalimat . " ");
+
         $out="";
+        $cetak = [];
 
         for ($i=0; $i < count($kata); $i++) { 
             $kamus=$this->Kamus_model->get_by_kata($kata[$i]);  
-        $huruf_pertama=$this->Huruf_model->get_by_huruf($kata[0]); //cek database kata pertama ada di db penghubung
-        $huruf_tiga=$this->Huruf_model->get_by_huruf($kata[2]);    //cek database kata ketiga ada di db penghubung
-        if (!empty($huruf_pertama)) { //cek kata penghubung jika dia ada 
-            if ($i==0) { //jika dia urutan yang pertama
-                $out .= $huruf_pertama->tanda." "; //print harokat
-            }elseif ($i==1) { //cek kata ke 2
-                $out .= $kamus->majrur." "; //cetak di tabel kamus dengan field majrur
+            $huruf_pertama=$this->Huruf_model->get_by_huruf($kata[0]); //cek database kata pertama ada di db penghubung
+            $huruf_tiga=$this->Huruf_model->get_by_huruf($kata[2]);    //cek database kata ketiga ada di db penghubung
+
+            if (!empty($huruf_pertama)) { //cek kata penghubung jika dia ada 
+                if ($i==0) { //jika dia urutan yang pertama
+                    $out .= $huruf_pertama->tanda." "; //print harokat
+                    $cetak[$i] = array(
+                        "arab" => $huruf_pertama->tanda,
+                        "penanda" => "tanda"
+                    );
+                }elseif ($i==1) { //cek kata ke 2
+                    $out .= $kamus->majrur." "; //cetak di tabel kamus dengan field majrur
+                    $cetak[$i] = array(
+                        "arab" => $kamus->majrur,
+                        "penanda" => "majrur"
+                    );
+                }else{
+                    $out .= $kamus->marfu." ";
+                    $cetak[$i] = array(
+                        "arab" => $kamus->marfu,
+                        "penanda" => "marfu"
+                    );
+                }
             }else{
-                $out .= $kamus->marfu." "; 
-            }
-        }else{
-            if ($i==2&&empty($huruf_tiga)) { // kata ke tiga dan tidak huruf penghubung
-                $out .= $kamus->masub." ";
-            }elseif (!empty($huruf_tiga)&&$i==2) { 
-                $out .= $huruf_tiga->tanda." ";
-            }elseif ($i==3&&!empty($huruf_tiga)) {
-                $out .= $kamus->majrur." ";
-            } else{
-                $out .= $kamus->marfu." " ;    
+                if ($i==2&&empty($huruf_tiga)) { // kata ke tiga dan tidak huruf penghubung
+                    $out .= $kamus->masub." ";
+                    $cetak[$i] = array(
+                        "arab" => $kamus->masub,
+                        "penanda" => "masub"
+                    );
+                }elseif (!empty($huruf_tiga)&&$i==2) { 
+                    $out .= $huruf_tiga->tanda." ";
+                    $cetak[$i] = array(
+                        "arab" => $huruf_tiga->tanda,
+                        "penanda" => "tanda"
+                    );
+                }elseif ($i==3&&!empty($huruf_tiga)) {
+                    $out .= $kamus->majrur." ";
+                    $cetak[$i] = array(
+                        "arab" => $kamus->majrur,
+                        "penanda" => "majrur"
+                    );
+                } else{
+                    $out .= $kamus->marfu." " ;
+                    $cetak[$i] = array(
+                        "arab" => $kamus->marfu,
+                        "penanda" => "marfu"
+                    );
+                }
             }
         }
-        
-    }
-    $this->session->set_flashdata('message', $out);
-    redirect(site_url('kamus/prediksi'));
+
+        $this->session->set_flashdata('message', $cetak);
+        redirect(site_url('kamus/prediksi'));
         //print_r($kamus->marfu);
-}
+    }
 
 public function index()
 {
